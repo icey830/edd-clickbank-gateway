@@ -1,3 +1,9 @@
+=Version 1.2.3, September 21, 2016=
+* Fixed a bug that caused a clickbank item number to be deleted if a post was updated.
+
+=Version 1.2.2, October 11, 2015=
+* Fixed a bug that allowed multiple EDD products to use the same clickbank item number, which would result in a "No download files found" error after purchase.
+
 =Version 1.2.1, June 4, 2014=
 * Corrected a major issue with session handling that resulted in $0 in purchase history reporting.
 
