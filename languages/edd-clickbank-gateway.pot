@@ -1,0 +1,52 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Easy Digital Downloads - ClickBank Gateway\n"
+"POT-Creation-Date: 2014-05-28 22:48-0500\n"
+"PO-Revision-Date: 2014-05-28 22:48-0500\n"
+"Last-Translator: Brian Richards <brian@rzen.net>\n"
+"Language-Team: Brian Richards <brian@rzen.net>\n"
+"Language: en_EN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.5\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+#: ../edd-clickbank-gateway.php:51
+msgid "ClickBank Settings"
+msgstr ""
+
+#: ../edd-clickbank-gateway.php:52
+msgid "Configure the gateway settings"
+msgstr ""
+
+#: ../edd-clickbank-gateway.php:57
+msgid "Account Nickname"
+msgstr ""
+
+#: ../edd-clickbank-gateway.php:64
+msgid "Secret Key"
+msgstr ""
+
+#: ../edd-clickbank-gateway.php:81
+msgid "ClickBank Item Number"
+msgstr ""
+
+#: ../edd-clickbank-gateway.php:101
+msgid "Update your ClickBank payment gateway settings."
+msgstr ""
+
+#: ../edd-clickbank-gateway.php:103
+msgid "Disable AJAX Checkout to support the ClickBank payment gateway."
+msgstr ""
+
+#: ../edd-clickbank-gateway.php:106
+msgid "Redirect user to the given ClickBank item during checkout."
+msgstr ""
+
+#: ../edd-clickbank-gateway.php:238
+msgid "ClickBank"
+msgstr ""
