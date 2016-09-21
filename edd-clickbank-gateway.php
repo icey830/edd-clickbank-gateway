@@ -248,17 +248,17 @@ final class EDD_ClickBank_Gateway {
 	}
 
 	private static function get_edd_product_id( $item = 0 ) {
-		$clickbank_items = get_option( self::$clickbank_option, array() );
+		$clickbank_items = self::get_clickbank_items();
 		return array_search( $item, $clickbank_items );
 	}
 
 	private static function get_clickbank_item( $product_id = 0 ) {
-		$clickbank_items = get_option( self::$clickbank_option, array() );
+		$clickbank_items = self::get_clickbank_items();
 		return isset( $clickbank_items[ $product_id ] ) ? absint( $clickbank_items[ $product_id ] ) : null;
 	}
 
 	private static function update_clickbank_items( $item = 0, $post_id = 0 ) {
-		$clickbank_items = get_option( self::$clickbank_option, array() );
+		$clickbank_items = self::get_clickbank_items();
 
 		// Only save the item ID if it's not already set for another post
 		if ( ! empty( $item ) && false === self::get_edd_product_id( $item ) ) {
@@ -270,7 +270,15 @@ final class EDD_ClickBank_Gateway {
 			unset( $clickbank_items[ $post_id ] );
 		}
 
-		update_option( self::$clickbank_option, $clickbank_items );
+		self::set_clickbank_items( $clickbank_items );
+	}
+
+	private static function get_clickbank_items() {
+		return get_option( self::$clickbank_option, array() );
+	}
+
+	private static function set_clickbank_items( $clickbank_items = array() ) {
+		return update_option( self::$clickbank_option, $clickbank_items );
 	}
 }
 $edd_clickbank_gateway = new EDD_ClickBank_Gateway;
