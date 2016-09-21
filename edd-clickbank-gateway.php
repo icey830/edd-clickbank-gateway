@@ -260,13 +260,15 @@ final class EDD_ClickBank_Gateway {
 	private static function update_clickbank_items( $item = 0, $post_id = 0 ) {
 		$clickbank_items = get_option( self::$clickbank_option, array() );
 
-		if ( ! empty( $item ) && ( false !== array_search( $item, $clickbank_items ) || empty( $clickbank_items ) ) ) {
+		// Only save the item ID if it's not already set for another post
+		if ( ! empty( $item ) && false === self::get_edd_product_id( $item ) ) {
 			$clickbank_items[ $post_id ] = $item;
-		} elseif ( array_key_exists( $post_id, $clickbank_items ) ) {
-			unset( $clickbank_items[ $post_id ] );
 		}
 
-		$clickbank_items = array_unique( $clickbank_items );
+		// Delete setting for this post if we no longer have an item ID
+		if ( empty( $item ) && isset( $clickbank_items[ $post_id ] ) ) {
+			unset( $clickbank_items[ $post_id ] );
+		}
 
 		update_option( self::$clickbank_option, $clickbank_items );
 	}
