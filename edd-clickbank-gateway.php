@@ -3,7 +3,7 @@
 Plugin Name: Easy Digital Downloads - ClickBank Gateway
 Plugin URI: https://easydigitaldownloads.com/extension/clickbank-gateway
 Description: ClickBank gateway extension for Easy Digital Downloads.
-Version: 1.2.1
+Version: 1.2.2
 Author: Brian Richards
 Author URI: http://www.rzen.net
 Text Domain: edd-clickbank-gateway
@@ -27,8 +27,8 @@ final class EDD_ClickBank_Gateway {
 			$license = new EDD_License(
 				__FILE__,
 				'EDD ClickBank Gateway',
-				'Brian Richards',
-				'1.1.4'
+				'1.2.2',
+				'Brian Richards'
 			);
 		}
 		add_filter( 'edd_settings_gateways', array( $this, 'clickbank_settings' ) );
@@ -166,11 +166,20 @@ final class EDD_ClickBank_Gateway {
 
 			// Confirm cbpop is valid, and unused, and product exists
 			if ( $cbpop == $xxpop && ! self::get_used_key( $cbpop ) && false !== $product_id ) {
+
 				self::set_current_session( $product_id );
 				$user_info = self::build_user_info( $name, $email );
 				$purchase_data = self::build_purchase_data( $user_info, $time );
 				edd_set_purchase_session( $purchase_data );
-				self::complete_payment( $purchase_data, $cbpop );
+
+				$payment = edd_insert_payment( $purchase_data );
+				$key     = edd_get_payment_key( $payment );
+				if ( $payment ) {
+					self::add_used_key( $payment, $cbpop );
+					edd_update_payment_status( $payment, 'complete' );
+					edd_empty_cart();
+					wp_redirect( add_query_arg( 'payment_key', $key, edd_get_success_page_uri() ) ); exit;
+				}
 			}
 		}
 	}
@@ -238,22 +247,12 @@ final class EDD_ClickBank_Gateway {
 		);
 	}
 
-	private static function complete_payment( $purchase_data = array(), $cbpop = '' ) {
-		$payment = edd_insert_payment( $purchase_data );
-		if ( $payment ) {
-			self::add_used_key( $payment, $cbpop );
-			edd_update_payment_status( $payment, 'complete' );
-			edd_empty_cart();
-			edd_send_to_success_page();
-		}
-	}
-
 	private static function get_edd_product_id( $item = 0 ) {
 		$clickbank_items = get_option( self::$clickbank_option, array() );
 		return array_search( $item, $clickbank_items );
 	}
 
-	public static function get_clickbank_item( $product_id = 0 ) {
+	private static function get_clickbank_item( $product_id = 0 ) {
 		$clickbank_items = get_option( self::$clickbank_option, array() );
 		return isset( $clickbank_items[ $product_id ] ) ? absint( $clickbank_items[ $product_id ] ) : null;
 	}
@@ -261,11 +260,13 @@ final class EDD_ClickBank_Gateway {
 	private static function update_clickbank_items( $item = 0, $post_id = 0 ) {
 		$clickbank_items = get_option( self::$clickbank_option, array() );
 
-		if ( ! empty( $item ) ) {
+		if ( ! empty( $item ) && ( false !== array_search( $item, $clickbank_items ) || empty( $clickbank_items ) ) ) {
 			$clickbank_items[ $post_id ] = $item;
-		} elseif ( isset( $clickbank_items[ $post_id ] ) ) {
+		} elseif ( array_key_exists( $post_id, $clickbank_items ) ) {
 			unset( $clickbank_items[ $post_id ] );
 		}
+
+		$clickbank_items = array_unique( $clickbank_items );
 
 		update_option( self::$clickbank_option, $clickbank_items );
 	}
