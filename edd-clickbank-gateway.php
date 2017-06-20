@@ -3,7 +3,7 @@
 Plugin Name: Easy Digital Downloads - ClickBank Gateway
 Plugin URI: https://easydigitaldownloads.com/extension/clickbank-gateway
 Description: ClickBank gateway extension for Easy Digital Downloads.
-Version: 1.2.3
+Version: 1.3.0
 Author: Brian Richards
 Author URI: http://www.rzen.net
 Text Domain: edd-clickbank-gateway
@@ -28,7 +28,7 @@ final class EDD_ClickBank_Gateway {
 			$license = new EDD_License(
 				__FILE__,
 				'EDD ClickBank Gateway',
-				'1.2.3',
+				'1.3.0',
 				'Brian Richards'
 			);
 		}
@@ -132,7 +132,7 @@ final class EDD_ClickBank_Gateway {
 	/**
 	 * Alter ClickBank product purchase links to post directly to payment gateway.
 	 *
-	 * @since  x.x.x
+	 * @since  1.3.0
 	 *
 	 * @param  array $args EDD Purchase Link args.
 	 * @return array       Updated EDD Purchase Link args.
@@ -152,7 +152,7 @@ final class EDD_ClickBank_Gateway {
 	/**
 	 * Alter straight_to_gateway to force ClickBank as gateway for CB products.
 	 *
-	 * @since  x.x.x
+	 * @since  1.3.0
 	 *
 	 * @param  array $purchase_data EDD Purchase Data.
 	 * @return array                Updated EDD Purchase Data.
@@ -175,7 +175,7 @@ final class EDD_ClickBank_Gateway {
 	/**
 	 * Include ClickBank as an enabled payment gateway.
 	 *
-	 * @since  x.x.x
+	 * @since  1.3.0
 	 *
 	 * @param  array $gateways EDD Payment Gateways.
 	 * @return array           Updated EDD Payment Gateways.
@@ -194,7 +194,7 @@ final class EDD_ClickBank_Gateway {
 	/**
 	 * Redirect customers to ClickBank during checkout.
 	 *
-	 * @since  x.x.x
+	 * @since  1.3.0
 	 *
 	 * @param  array $payment_data EDD Purchase Data.
 	 */
