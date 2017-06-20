@@ -23,6 +23,7 @@ final class EDD_ClickBank_Gateway {
 	 * Construct
 	 */
 	public function __construct() {
+
 		if ( class_exists( 'EDD_License' ) ) {
 			$license = new EDD_License(
 				__FILE__,
@@ -31,10 +32,14 @@ final class EDD_ClickBank_Gateway {
 				'Brian Richards'
 			);
 		}
+
 		add_filter( 'edd_settings_gateways', array( $this, 'clickbank_settings' ) );
+		add_action( 'edd_ClickBank_cc_form', '__return_null' );
 		add_action( 'add_meta_boxes',        array( $this, 'add_meta_box' ) );
 		add_action( 'save_post',             array( $this, 'save_post' ) );
-		add_action( 'edd_add_to_cart',       array( $this, 'edd_add_to_cart' ), 5 );
+		add_filter( 'edd_purchase_link_defaults', array( $this, 'edd_purchase_link_defaults' ) );
+		add_filter( 'edd_straight_to_gateway_purchase_data', array( $this, 'edd_straight_to_gateway_purchase_data' ) );
+		add_action( 'edd_gateway_ClickBank', array( $this, 'edd_gateway_ClickBank' ) );
 		add_action( 'init',                  array( $this, 'clickbank_process_payment' ) );
 	}
 
@@ -99,8 +104,6 @@ final class EDD_ClickBank_Gateway {
 		<div class="tagsdiv">
 			<?php if ( empty( $edd_options['clickbank_account_nickname'] ) || empty( $edd_options['clickbank_secret_key'] ) ) : ?>
 				<p><a href="<?php echo admin_url( 'edit.php?post_type=download&page=edd-settings&tab=gateways' ); ?>"><?php _e( 'Update your ClickBank payment gateway settings.', 'edd-clickbank-gateway' ); ?></a></p>
-			<?php elseif ( edd_is_ajax_enabled() ) : ?>
-				<p><a href="<?php echo admin_url( 'edit.php?post_type=download&page=edd-settings&tab=misc' ); ?>"><?php _e( 'Disable AJAX Checkout to support the ClickBank payment gateway.', 'edd-clickbank-gateway' ) ?></a></p>
 			<?php else : ?>
 				<p><input type="text" autocomplete="off" class="widefat" name="clickbank_item" id="clickbank_item" value="<?php echo esc_attr( $item ); ?>"></p>
 				<p class="howto"><?php _e('Redirect user to the given ClickBank item during checkout.', 'edd-clickbank-gateway'); ?></p>
@@ -127,14 +130,78 @@ final class EDD_ClickBank_Gateway {
 	}
 
 	/**
-	 * Add clickbank item to cart.
+	 * Alter ClickBank product purchase links to post directly to payment gateway.
 	 *
-	 * @param array $data
+	 * @since  x.x.x
+	 *
+	 * @param  array $args EDD Purchase Link args.
+	 * @return array       Updated EDD Purchase Link args.
 	 */
-	public function edd_add_to_cart( $data ) {
+	public function edd_purchase_link_defaults( $args ) {
+
+		$item = self::get_clickbank_item( $args['download_id'] );
+
+		if ( ! empty( $item ) ) {
+			$args['direct'] = true;
+			add_filter( 'edd_shop_supports_buy_now', '__return_true' );
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Alter straight_to_gateway to force ClickBank as gateway for CB products.
+	 *
+	 * @since  x.x.x
+	 *
+	 * @param  array $purchase_data EDD Purchase Data.
+	 * @return array                Updated EDD Purchase Data.
+	 */
+	public function edd_straight_to_gateway_purchase_data( $purchase_data ) {
+		// edd_send_to_gateway() calls action "edd_gateway_{$gateway}" and sends $payment_data
+		// $payment_data is built via edd_build_straight_to_gateway_data( $download_id, $options, $quantity )
+		// download post ID is stored in $payment_data['downloads'][0]['id']
+
+		$item = self::get_clickbank_item( $purchase_data['downloads'][0]['id'] );
+
+		if ( ! empty( $item ) ) {
+			$purchase_data['gateway'] = 'ClickBank';
+			add_filter( 'edd_enabled_payment_gateways', array( $this, 'edd_enabled_payment_gateways' ) );
+		}
+
+		return $purchase_data;
+	}
+
+	/**
+	 * Include ClickBank as an enabled payment gateway.
+	 *
+	 * @since  x.x.x
+	 *
+	 * @param  array $gateways EDD Payment Gateways.
+	 * @return array           Updated EDD Payment Gateways.
+	 */
+	function edd_enabled_payment_gateways( $gateways ) {
+		$gateways['ClickBank'] = array(
+			'admin_label'    => __( 'ClickBank', 'edd-clickbank-gateway' ),
+			'checkout_label' => __( 'ClickBank', 'edd-clickbank-gateway' ),
+			'supports' => array(
+				'buy_now',
+			),
+		);
+		return $gateways;
+	}
+
+	/**
+	 * Redirect customers to ClickBank during checkout.
+	 *
+	 * @since  x.x.x
+	 *
+	 * @param  array $payment_data EDD Purchase Data.
+	 */
+	public function edd_gateway_ClickBank( $payment_data ) {
 		global $edd_options;
 
-		$item = self::get_clickbank_item( $data['download_id'] );
+		$item = self::get_clickbank_item( $payment_data['downloads'][0]['id'] );
 
 		if ( ! empty( $item ) && ! empty( $edd_options['clickbank_account_nickname'] ) && ! empty( $edd_options['clickbank_secret_key'] ) ) {
 			// http://ITEM.VENDOR.pay.clickbank.net
