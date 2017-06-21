@@ -1,14 +1,14 @@
 <?php
 /*
-Plugin Name: Easy Digital Downloads - ClickBank Gateway
-Plugin URI: https://easydigitaldownloads.com/extension/clickbank-gateway
-Description: ClickBank gateway extension for Easy Digital Downloads.
-Version: 1.3.0
-Author: Brian Richards
-Author URI: http://www.rzen.net
-Text Domain: edd-clickbank-gateway
-Domain Path: /languages/
-*/
+ * Plugin Name: Easy Digital Downloads - ClickBank Gateway
+ * Plugin URI:  https://easydigitaldownloads.com/extension/clickbank-gateway
+ * Description: ClickBank gateway extension for Easy Digital Downloads.
+ * Version:     1.3.0
+ * Author:      Brian Richards
+ * Author URI:  http://www.rzen.net
+ * Text Domain: edd-clickbank-gateway
+ * Domain Path: /languages/
+ */
 
 final class EDD_ClickBank_Gateway {
 
