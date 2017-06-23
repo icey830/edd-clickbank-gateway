@@ -321,7 +321,7 @@ final class EDD_ClickBank_Gateway {
 
 	private static function get_clickbank_item( $product_id = 0 ) {
 		$clickbank_items = self::get_clickbank_items();
-		return isset( $clickbank_items[ $product_id ] ) ? absint( $clickbank_items[ $product_id ] ) : null;
+		return isset( $clickbank_items[ $product_id ] ) ? esc_html( $clickbank_items[ $product_id ] ) : null;
 	}
 
 	private static function update_clickbank_items( $item = 0, $post_id = 0 ) {
