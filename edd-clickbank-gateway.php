@@ -220,7 +220,12 @@ final class EDD_ClickBank_Gateway {
 	public function clickbank_process_payment() {
 		global $edd_options;
 
+		$this->log( 'Clickbank webook processing' );
+
 		if ( self::clickbank_data_received() && ! empty( $edd_options['clickbank_secret_key'] ) ) {
+
+			$this->log( 'Clickbank data received. GET: ' . print_r( $_GET, true ) );
+
 			$name       = explode( ' ', rawurldecode( $_GET['cname'] ), 2 );
 			$email      = sanitize_email( rawurldecode( $_GET['cemail'] ) );
 			$key        = $edd_options['clickbank_secret_key'];
@@ -231,12 +236,20 @@ final class EDD_ClickBank_Gateway {
 			$cbpop      = $_GET['cbpop'];
 			$xxpop      = strtoupper( substr( sha1( "$key|$receipt|$time|$item" ), 0, 8 ) );
 
+			$this->log( 'cbpop value: ' . $cbpop . '. xxpop value: ' . $xxpop );
+
 			// Confirm cbpop is valid, and unused, and product exists
 			if ( $cbpop == $xxpop && ! self::get_used_key( $cbpop ) && false !== $product_id ) {
 
 				self::set_current_session( $product_id );
 				$user_info = self::build_user_info( $name, $email );
+				
+				$this->log( 'Clickbank user data:' . print_r( $user_info, true ) );
+
 				$purchase_data = self::build_purchase_data( $user_info, $time );
+
+				$this->log( 'Clickbank purchase data:' . print_r( $purchase_data, true ) );
+
 				edd_set_purchase_session( $purchase_data );
 
 				$payment = edd_insert_payment( $purchase_data );
@@ -248,6 +261,8 @@ final class EDD_ClickBank_Gateway {
 					wp_redirect( add_query_arg( 'payment_key', $key, edd_get_success_page_uri() ) ); exit;
 				}
 			}
+		} else {
+			$this->log( 'Clickbank webhook skipped because data not received. GET: ' . print_r( $_GET, true ) );
 		}
 	}
 
@@ -346,6 +361,12 @@ final class EDD_ClickBank_Gateway {
 
 	private static function set_clickbank_items( $clickbank_items = array() ) {
 		return update_option( self::$clickbank_option, $clickbank_items );
+	}
+
+	private function log( $message = '' ) {
+		if( function_exists( 'edd_debug_log' ) ) {
+			edd_debug_log( $message );
+		}
 	}
 }
 $edd_clickbank_gateway = new EDD_ClickBank_Gateway;
