@@ -220,8 +220,6 @@ final class EDD_ClickBank_Gateway {
 	public function clickbank_process_payment() {
 		global $edd_options;
 
-		$this->log( 'Clickbank webook processing' );
-
 		if ( self::clickbank_data_received() && ! empty( $edd_options['clickbank_secret_key'] ) ) {
 
 			$this->log( 'Clickbank data received. GET: ' . print_r( $_GET, true ) );
