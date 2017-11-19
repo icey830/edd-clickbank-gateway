@@ -259,8 +259,6 @@ final class EDD_ClickBank_Gateway {
 					wp_redirect( add_query_arg( 'payment_key', $key, edd_get_success_page_uri() ) ); exit;
 				}
 			}
-		} else {
-			$this->log( 'Clickbank webhook skipped because data not received. GET: ' . print_r( $_GET, true ) );
 		}
 	}
 
