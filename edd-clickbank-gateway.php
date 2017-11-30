@@ -235,28 +235,26 @@ final class EDD_ClickBank_Gateway {
 			$xxpop      = strtoupper( substr( sha1( "$key|$receipt|$time|$item" ), 0, 8 ) );
 
 			$this->log( 'cbpop value: ' . $cbpop . '. xxpop value: ' . $xxpop );
+			$this->log( 'ClickBank item: ' . $item );
+			$this->log( 'ClickBank product ID: ' . $product_id );
 
 			// Confirm cbpop is valid, and unused, and product exists
 			if ( $cbpop == $xxpop && ! self::get_used_key( $cbpop ) && false !== $product_id ) {
 
-				self::set_current_session( $product_id );
-				$user_info = self::build_user_info( $name, $email );
-				
-				$this->log( 'Clickbank user data:' . print_r( $user_info, true ) );
+				$payment = new EDD_Payment;
+				$payment->email = $email;
+				$payment->first_name = ! empty( $name[0] ) ? $name[0] : '';
+				$payment->last_name = ! empty( $name[1] ) ? $name[1] : '';
+				$payment->add_download( $product_id );
+				$payment->gateway = 'ClickBank';
+				$payment->save();
 
-				$purchase_data = self::build_purchase_data( $user_info, $time );
-
-				$this->log( 'Clickbank purchase data:' . print_r( $purchase_data, true ) );
-
-				edd_set_purchase_session( $purchase_data );
-
-				$payment = edd_insert_payment( $purchase_data );
-				$key     = edd_get_payment_key( $payment );
-				if ( $payment ) {
-					self::add_used_key( $payment, $cbpop );
-					edd_update_payment_status( $payment, 'complete' );
+				if ( $payment->ID > 0 ) {
+					self::add_used_key( $payment->ID, $cbpop );
+					$payment->status = 'complete';
+					$payment->save();
 					edd_empty_cart();
-					wp_redirect( add_query_arg( 'payment_key', $key, edd_get_success_page_uri() ) ); exit;
+					wp_redirect( add_query_arg( 'payment_key', $payment->key, edd_get_success_page_uri() ) ); exit;
 				}
 			}
 		}
